@@ -1,24 +1,20 @@
 import React, { useContext, useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View } from 'react-native';
 import { styles } from './styles';
 
-import { TabParamList } from '../../App';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-
-import GradientText from '../../components/GradientsStyledComponents/GradientText';
-import GradientInput from '../../components/GradientsStyledComponents/GradientInput';
 import GradientButton from '../../components/GradientsStyledComponents/GradientButton';
 import { UserContext } from '../../UserContext';
+import LoginScreen from './LoginScreen/LoginScreen';
 
-type Props = NativeStackScreenProps<TabParamList, 'Account'>;
-
-const AccountScreen = ({navigation}: Props) => {
+const AccountScreen = () => {
     const { user, setUser } = useContext(UserContext);
+    const [isLoading, setIsloading] = useState(false)
     const [credentials, setCredentials] = useState({
         email: '',
         password: ''
     })
     const pressHandler = async () => {
+        setIsloading(true);
         const headers = new Headers({
             "Content-Type": "application/json"
         })
@@ -31,6 +27,7 @@ const AccountScreen = ({navigation}: Props) => {
             })            
         })
         const responseJson = await response.json();
+        responseJson && setIsloading(false);
         setUser({
             id: responseJson._id,
             lastname: responseJson.lastname,
@@ -41,30 +38,17 @@ const AccountScreen = ({navigation}: Props) => {
             accessToken: responseJson.accessToken
         });        
     }
-    console.log(user);
-    
-    return (
-        <View style={styles.container}>
-            <GradientText style={styles.screenTitle}>Connexion</GradientText>
-            <View style={styles.credentialsContainer} >
-                <Text style={styles.label} >Adresse Mail:</Text>
-                <GradientInput onChangeText={(text: string) => setCredentials({...credentials, email: text})} />
-            </View >
-            <View style={styles.credentialsContainer} >
-                <Text style={styles.label} >Mot de passe :</Text>
-                <GradientInput onChangeText={(text: string) => setCredentials({...credentials, password: text})} secureTextEntry={true}/>
+    if(user === null){
+        return (
+            <LoginScreen pressHandler={pressHandler} setCredentials={setCredentials} credentials={credentials} />
+        );
+    } else {
+        return(
+            <View style={styles.container}>
+                <GradientButton title={'Se déconnecter'} onPress={() => setUser(null)} />
             </View>
-            <View>
-                <Text style={styles.createAccountLabel}>Pas encore de compte ?</Text>
-                <TouchableOpacity>
-                    <GradientText style={styles.createAccountLink} onPress={() => navigation.navigate('CreateAccount')}>Créez le vôtre !</GradientText>
-                </TouchableOpacity>
-            </View>
-            <View>
-                <GradientButton title={'Se connecter'} onPress={pressHandler} />
-            </View>
-        </View>
-    );
+        )
+    }
 }
 
 export default AccountScreen;

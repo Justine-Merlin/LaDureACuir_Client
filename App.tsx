@@ -64,6 +64,7 @@ export default function App() {
             tabBarInactiveTintColor: '#FFCDBD',
             tabBarStyle: {height: 60},
             tabBarShowLabel: false,
+            tabBarHideOnKeyboard: true,
             headerShown: false,
             tabBarIcon: ({ color }) => screenOptions(route, color),
             tabBarBackground: () => (
